@@ -15,8 +15,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-const SKILL: &str = "Install the dashlane-to-bitwarden skill using the Skills CLI:\n\n  npx skills add alexgorbatchev/dashlane-to-bitwarden --skill dashlane-to-bitwarden\n\nSkill:\n\n  https://github.com/alexgorbatchev/dashlane-to-bitwarden/tree/main/skills/dashlane-to-bitwarden\n";
-
 fn paths(command: Command) -> Command {
     command
         .arg(
@@ -62,7 +60,10 @@ pub fn command() -> Command {
 
 pub fn help_options() -> HelpOptions {
     HelpOptions {
-        skill: Some(SKILL.into()),
+        skill: Some(
+            cli_command_kit::SkillSource::new("alexgorbatchev/dashlane-to-bitwarden", "main")
+                .expect("the fixed skill source names a GitHub repository"),
+        ),
         ..HelpOptions::default()
     }
 }
@@ -115,7 +116,7 @@ fn perform(
     output: &mut impl Write,
     mode: Mode,
 ) -> Result<()> {
-    if cli_command_kit::write_skill(matches, options, output)? {
+    if cli_command_kit::write_skill(&command(), matches, options, output)? {
         return Ok(());
     }
     if matches.get_flag("version") {
